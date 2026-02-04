@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "inventoryproxysync",
+  "version": "1.0.0",
+  "name": "InventoryProxySync",
+  "description": "Syncs player inventory to a database on join/leave.",
+  "authors": [
+    "Harsh"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "MIT",
+  "icon": "assets/inventoryproxysync/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.harsh.inventoryproxysync.InventoryProxySync"
+    ]
+  },
+  "mixins": [
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.9",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}

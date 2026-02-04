@@ -3,6 +3,7 @@ package com.harsh.inventoryproxysync.database;
 import com.harsh.inventoryproxysync.config.ModConfig;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtSizeTracker;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 
@@ -75,7 +76,7 @@ public class SQLiteHandler implements DatabaseHandler {
                     byte[] data = rs.getBytes("inventory_data");
                     if (data != null) {
                         try (ByteArrayInputStream bais = new ByteArrayInputStream(data)) {
-                            return NbtIo.readCompressed(bais);
+                            return NbtIo.readCompressed(bais, NbtSizeTracker.ofUnlimitedBytes());
                         }
                     }
                 }

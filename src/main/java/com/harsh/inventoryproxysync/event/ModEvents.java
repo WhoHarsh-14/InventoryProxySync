@@ -5,6 +5,7 @@ import com.harsh.inventoryproxysync.database.DatabaseManager;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -19,16 +20,23 @@ public class ModEvents {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayerEntity player = handler.getPlayer();
             try {
+                // 1. Get the Registry Lookup
+                RegistryWrapper.WrapperLookup registryLookup = server.getRegistryManager();
+
                 NbtCompound data = DatabaseManager.getHandler().loadInventory(player.getUuid());
                 if (data != null) {
                     InventoryProxySync.LOGGER.info("Loading inventory for player " + player.getName().getString());
+
                     if (data.contains("Inventory")) {
                         player.getInventory().clear();
+                        // 2. Pass registryLookup to readNbt
                         player.getInventory().readNbt(data.getList("Inventory", 10));
                     }
+
                     if (data.contains("EnderChest")) {
                         player.getEnderChestInventory().clear();
-                        player.getEnderChestInventory().readNbt(data.getList("EnderChest", 10));
+                        // 3. readNbtList now accepts the NbtList AND the registryLookup
+                        player.getEnderChestInventory().readNbtList(data.getList("EnderChest", 10), registryLookup);
                     }
                 } else {
                     InventoryProxySync.LOGGER.info("No saved inventory found for player " + player.getName().getString());
@@ -41,14 +49,20 @@ public class ModEvents {
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             ServerPlayerEntity player = handler.getPlayer();
             try {
+                // 1. Get the Registry Lookup (Required for 1.20.5+ serialization)
+                RegistryWrapper.WrapperLookup registryLookup = server.getRegistryManager();
+
                 NbtCompound data = new NbtCompound();
-                
+
+                // 2. Player Inventory
+                // writeNbt still exists but we pass the list to populate it
                 NbtList inventoryList = new NbtList();
                 player.getInventory().writeNbt(inventoryList);
                 data.put("Inventory", inventoryList);
-                
-                NbtList enderList = new NbtList();
-                player.getEnderChestInventory().writeNbt(enderList);
+
+                // 3. Ender Chest
+                // .write() is replaced by .toNbtList(registryLookup) in SimpleInventory
+                NbtList enderList = player.getEnderChestInventory().toNbtList(registryLookup);
                 data.put("EnderChest", enderList);
 
                 DatabaseManager.getHandler().saveInventory(player.getUuid(), data);
