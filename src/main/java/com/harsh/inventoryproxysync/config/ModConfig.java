@@ -11,11 +11,13 @@ import java.io.IOException;
 
 public class ModConfig {
     private static ModConfig INSTANCE;
-    private static final File CONFIG_FILE = FabricLoader.getInstance().getConfigDir().resolve("inventoryproxysync.json").toFile();
+    private static final File CONFIG_FILE = FabricLoader.getInstance().getConfigDir().resolve("inventoryproxysync.json")
+            .toFile();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    public String databaseType = "SQLITE"; // SQLITE, MYSQL
+    public String databaseType = "SQLITE"; // SQLITE, MYSQL, REDIS
     public MySQLConfig mysql = new MySQLConfig();
+    public RedisConfig redis = new RedisConfig();
     public SQLiteConfig sqlite = new SQLiteConfig();
 
     public static class MySQLConfig {
@@ -24,6 +26,14 @@ public class ModConfig {
         public String database = "minecraft";
         public String user = "root";
         public String password = "password";
+    }
+
+    public static class RedisConfig {
+        public String host = "localhost";
+        public int port = 6379;
+        public String user = ""; // Optional (ACL)
+        public String password = ""; // Optional
+        public int database = 0;
     }
 
     public static class SQLiteConfig {

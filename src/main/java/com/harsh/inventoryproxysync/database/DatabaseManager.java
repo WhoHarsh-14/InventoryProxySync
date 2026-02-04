@@ -9,6 +9,8 @@ public class DatabaseManager {
         String type = ModConfig.get().databaseType.toUpperCase();
         if ("MYSQL".equals(type)) {
             handler = new MySQLHandler();
+        } else if ("REDIS".equals(type)) {
+            handler = new RedisHandler();
         } else {
             handler = new SQLiteHandler();
         }
